@@ -1,0 +1,638 @@
+openapi: 3.0.3
+info:
+  title: Hometown Services API
+  description: API for Hometown Services website - service listings, contact forms, and admin management
+  version: 1.0.0
+  contact:
+    name: Hometown Services
+
+servers:
+  - url: /api
+    description: Next.js API routes
+
+tags:
+  - name: Public
+    description: Public-facing endpoints (no authentication)
+  - name: Admin
+    description: Admin-only endpoints (requires authentication)
+  - name: Auth
+    description: Authentication endpoints
+
+paths:
+  # ============ PUBLIC ENDPOINTS ============
+
+  /services:
+    get:
+      tags: [Public]
+      summary: List all services
+      description: Returns all services grouped by category
+      parameters:
+        - name: categorySlug
+          in: query
+          schema:
+            type: string
+          description: Filter by category slug
+      responses:
+        '200':
+          description: List of services
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  services:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ServiceWithCategory'
+
+  /services/{slug}:
+    get:
+      tags: [Public]
+      summary: Get service by slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Service details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceWithCategory'
+        '404':
+          description: Service not found
+
+  /categories:
+    get:
+      tags: [Public]
+      summary: List all categories
+      responses:
+        '200':
+          description: List of categories with service counts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CategoryWithCount'
+
+  /inquiries:
+    post:
+      tags: [Public]
+      summary: Submit contact inquiry
+      description: Submit a contact form (requires CAPTCHA verification)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InquiryCreate'
+      responses:
+        '201':
+          description: Inquiry submitted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  message: { type: string }
+        '400':
+          description: Validation error or CAPTCHA failed
+        '429':
+          description: Rate limit exceeded
+
+  /settings/public:
+    get:
+      tags: [Public]
+      summary: Get public site settings
+      description: Returns service area and company contact info
+      responses:
+        '200':
+          description: Public settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicSettings'
+
+  # ============ AUTH ENDPOINTS ============
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+        '401':
+          description: Invalid credentials
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Admin logout
+      responses:
+        '200':
+          description: Logout successful
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current session
+      responses:
+        '200':
+          description: Session info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isAuthenticated: { type: boolean }
+                  username: { type: string }
+
+  # ============ ADMIN ENDPOINTS ============
+
+  /admin/services:
+    get:
+      tags: [Admin]
+      summary: List all services (admin view)
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: List of services with all fields
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  services:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Service'
+        '401':
+          description: Not authenticated
+
+    post:
+      tags: [Admin]
+      summary: Create new service
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceCreate'
+      responses:
+        '201':
+          description: Service created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        '400':
+          description: Validation error
+        '401':
+          description: Not authenticated
+
+  /admin/services/{id}:
+    put:
+      tags: [Admin]
+      summary: Update service
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceUpdate'
+      responses:
+        '200':
+          description: Service updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        '401':
+          description: Not authenticated
+        '404':
+          description: Service not found
+
+    delete:
+      tags: [Admin]
+      summary: Delete service
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Service deleted
+        '401':
+          description: Not authenticated
+        '404':
+          description: Service not found
+
+  /admin/categories:
+    get:
+      tags: [Admin]
+      summary: List all categories (admin view)
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'
+        '401':
+          description: Not authenticated
+
+    post:
+      tags: [Admin]
+      summary: Create new category
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryCreate'
+      responses:
+        '201':
+          description: Category created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          description: Validation error
+        '401':
+          description: Not authenticated
+
+  /admin/categories/{id}:
+    put:
+      tags: [Admin]
+      summary: Update category
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryUpdate'
+      responses:
+        '200':
+          description: Category updated
+        '401':
+          description: Not authenticated
+        '404':
+          description: Category not found
+
+    delete:
+      tags: [Admin]
+      summary: Delete category
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Category deleted
+        '400':
+          description: Cannot delete category with services
+        '401':
+          description: Not authenticated
+        '404':
+          description: Category not found
+
+  /admin/inquiries:
+    get:
+      tags: [Admin]
+      summary: List contact inquiries
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/InquiryStatus'
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: List of inquiries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  inquiries:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Inquiry'
+                  total: { type: integer }
+                  page: { type: integer }
+                  totalPages: { type: integer }
+        '401':
+          description: Not authenticated
+
+  /admin/inquiries/{id}:
+    patch:
+      tags: [Admin]
+      summary: Update inquiry status
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  $ref: '#/components/schemas/InquiryStatus'
+      responses:
+        '200':
+          description: Inquiry updated
+        '401':
+          description: Not authenticated
+        '404':
+          description: Inquiry not found
+
+  /admin/settings:
+    get:
+      tags: [Admin]
+      summary: Get all site settings
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Site settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteSettings'
+        '401':
+          description: Not authenticated
+
+    put:
+      tags: [Admin]
+      summary: Update site settings
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteSettingsUpdate'
+      responses:
+        '200':
+          description: Settings updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteSettings'
+        '400':
+          description: Validation error
+        '401':
+          description: Not authenticated
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: hometown_admin_session
+
+  schemas:
+    # ============ SERVICE SCHEMAS ============
+
+    Service:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        slug: { type: string }
+        description: { type: string }
+        imageUrl: { type: string, nullable: true }
+        isSubcontracted: { type: boolean }
+        categoryId: { type: string, format: uuid }
+        displayOrder: { type: integer }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    ServiceWithCategory:
+      allOf:
+        - $ref: '#/components/schemas/Service'
+        - type: object
+          properties:
+            category:
+              $ref: '#/components/schemas/Category'
+
+    ServiceCreate:
+      type: object
+      required: [name, description, categoryId]
+      properties:
+        name: { type: string, maxLength: 100 }
+        description: { type: string }
+        imageUrl: { type: string, maxLength: 500 }
+        isSubcontracted: { type: boolean, default: false }
+        categoryId: { type: string, format: uuid }
+        displayOrder: { type: integer, default: 0 }
+
+    ServiceUpdate:
+      type: object
+      properties:
+        name: { type: string, maxLength: 100 }
+        description: { type: string }
+        imageUrl: { type: string, maxLength: 500, nullable: true }
+        isSubcontracted: { type: boolean }
+        categoryId: { type: string, format: uuid }
+        displayOrder: { type: integer }
+
+    # ============ CATEGORY SCHEMAS ============
+
+    Category:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        slug: { type: string }
+        description: { type: string, nullable: true }
+        displayOrder: { type: integer }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    CategoryWithCount:
+      allOf:
+        - $ref: '#/components/schemas/Category'
+        - type: object
+          properties:
+            _count:
+              type: object
+              properties:
+                services: { type: integer }
+
+    CategoryCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, maxLength: 100 }
+        description: { type: string, maxLength: 500 }
+        displayOrder: { type: integer, default: 0 }
+
+    CategoryUpdate:
+      type: object
+      properties:
+        name: { type: string, maxLength: 100 }
+        description: { type: string, maxLength: 500, nullable: true }
+        displayOrder: { type: integer }
+
+    # ============ INQUIRY SCHEMAS ============
+
+    InquiryStatus:
+      type: string
+      enum: [NEW, READ, RESPONDED, ARCHIVED]
+
+    Inquiry:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        email: { type: string, format: email }
+        phone: { type: string, nullable: true }
+        serviceId: { type: string, format: uuid, nullable: true }
+        service:
+          $ref: '#/components/schemas/Service'
+        message: { type: string }
+        status: { $ref: '#/components/schemas/InquiryStatus' }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    InquiryCreate:
+      type: object
+      required: [name, email, message, captchaToken]
+      properties:
+        name: { type: string, maxLength: 100 }
+        email: { type: string, format: email, maxLength: 255 }
+        phone: { type: string, maxLength: 20 }
+        serviceId: { type: string, format: uuid }
+        message: { type: string, minLength: 10 }
+        captchaToken: { type: string, description: CAPTCHA verification token }
+
+    # ============ SETTINGS SCHEMAS ============
+
+    SiteSettings:
+      type: object
+      properties:
+        serviceAreaLat: { type: number, format: double }
+        serviceAreaLng: { type: number, format: double }
+        serviceAreaMiles: { type: integer }
+        companyName: { type: string }
+        companyPhone: { type: string }
+        companyEmail: { type: string, format: email }
+        companyAddress: { type: string, nullable: true }
+        updatedAt: { type: string, format: date-time }
+
+    PublicSettings:
+      type: object
+      properties:
+        serviceArea:
+          type: object
+          properties:
+            lat: { type: number, format: double }
+            lng: { type: number, format: double }
+            radiusMiles: { type: integer }
+        company:
+          type: object
+          properties:
+            name: { type: string }
+            phone: { type: string }
+            email: { type: string, format: email }
+            address: { type: string, nullable: true }
+
+    SiteSettingsUpdate:
+      type: object
+      properties:
+        serviceAreaLat: { type: number, minimum: -90, maximum: 90 }
+        serviceAreaLng: { type: number, minimum: -180, maximum: 180 }
+        serviceAreaMiles: { type: integer, minimum: 1, maximum: 500 }
+        companyName: { type: string, maxLength: 100 }
+        companyPhone: { type: string, maxLength: 20 }
+        companyEmail: { type: string, format: email, maxLength: 255 }
+        companyAddress: { type: string, nullable: true }
