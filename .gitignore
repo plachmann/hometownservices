@@ -50,3 +50,4 @@ prisma/migrations/*
 *.log
 *.tmp
 .cache/
+.env*.local

@@ -1,6 +1,8 @@
 import prisma from "@/lib/prisma";
 import { successResponse, notFoundResponse, serverErrorResponse } from "@/lib/api-utils";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ slug: string }> }

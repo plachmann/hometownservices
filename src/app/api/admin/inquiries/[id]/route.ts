@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 import { requireAdmin } from "@/lib/require-admin";
 import { inquiryStatusSchema } from "@/lib/validations";
 import {

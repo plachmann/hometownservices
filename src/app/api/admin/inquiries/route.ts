@@ -7,6 +7,8 @@ import {
   serverErrorResponse,
 } from "@/lib/api-utils";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   const admin = await requireAdmin();
   if (!admin) {

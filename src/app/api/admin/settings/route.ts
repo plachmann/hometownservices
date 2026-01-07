@@ -10,6 +10,8 @@ import {
 } from "@/lib/api-utils";
 import { ZodError } from "zod";
 
+export const dynamic = "force-dynamic";
+
 export async function PUT(request: NextRequest) {
   const admin = await requireAdmin();
   if (!admin) {

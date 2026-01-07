@@ -3,6 +3,8 @@ import { getIronSession } from "iron-session";
 import { SessionData, sessionOptions, defaultSession } from "@/lib/auth";
 import { successResponse, serverErrorResponse } from "@/lib/api-utils";
 
+export const dynamic = "force-dynamic";
+
 export async function POST() {
   try {
     const cookieStore = await cookies();
