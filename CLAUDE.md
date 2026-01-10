@@ -3,6 +3,8 @@
 Auto-generated from all feature plans. Last updated: 2026-01-05
 
 ## Active Technologies
+- TypeScript 5.x + Next.js 14 (App Router), Tailwind CSS, shadcn/ui (002-orange-black-theme)
+- N/A (styling change only) (002-orange-black-theme)
 
 - TypeScript 5.x, Node.js 20.x LTS + Next.js 14 (App Router), Prisma ORM, Tailwind CSS, shadcn/ui, React-Leaflet, Fuse.js, iron-session (001-hometown-services-site)
 
@@ -22,6 +24,7 @@ npm test && npm run lint
 TypeScript 5.x, Node.js 20.x LTS: Follow standard conventions
 
 ## Recent Changes
+- 002-orange-black-theme: Added TypeScript 5.x + Next.js 14 (App Router), Tailwind CSS, shadcn/ui
 
 - 001-hometown-services-site: Added TypeScript 5.x, Node.js 20.x LTS + Next.js 14 (App Router), Prisma ORM, Tailwind CSS, shadcn/ui, React-Leaflet, Fuse.js, iron-session
 
