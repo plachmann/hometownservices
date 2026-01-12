@@ -12,6 +12,7 @@ A modern, responsive website for local service businesses built with Next.js 14,
 - **Maps**: React-Leaflet + OpenStreetMap
 - **Search**: Fuse.js (client-side fuzzy search)
 - **CAPTCHA**: Cloudflare Turnstile (or hCaptcha)
+- **Rate Limiting**: Upstash Redis (optional)
 - **Hosting**: Vercel
 
 ## Getting Started
@@ -123,6 +124,19 @@ The contact form saves submissions to the database. View them in the admin panel
 
 **Required for CAPTCHA**: Set up Cloudflare Turnstile or hCaptcha keys in your `.env` file.
 
+## Security Features
+
+- **Password Hashing**: bcrypt with cost factor 12
+- **Session Management**: Encrypted cookies via iron-session (httpOnly, secure, sameSite)
+- **Input Validation**: Zod schemas on all API inputs
+- **SQL Injection Protection**: Prisma ORM with parameterized queries
+- **CAPTCHA**: Bot protection on contact form
+- **Rate Limiting**: Optional Upstash Redis integration
+  - Login: 5 attempts per 15 minutes per IP
+  - Contact form: 3 submissions per hour per IP
+
+To enable rate limiting, set up a free [Upstash Redis](https://upstash.com/) database and add the credentials to your `.env` file.
+
 ## Environment Variables
 
 Create a `.env` file based on `.env.example`:
@@ -148,6 +162,10 @@ ADMIN_PASSWORD="change-this-secure-password"
 
 # Site URL
 NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+
+# Rate Limiting (optional) - https://upstash.com/
+UPSTASH_REDIS_REST_URL="https://your-instance.upstash.io"
+UPSTASH_REDIS_REST_TOKEN="your-upstash-token"
 ```
 
 ## Available Scripts
