@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/require-admin";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminHeader from "@/components/admin/AdminHeader";
+import { Toaster } from "@/components/ui/toaster";
 
 export default async function AdminDashboardLayout({
   children,
@@ -21,6 +22,7 @@ export default async function AdminDashboardLayout({
         <AdminHeader username={admin.username} />
         <main className="flex-1 p-6">{children}</main>
       </div>
+      <Toaster />
     </div>
   );
 }
