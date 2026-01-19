@@ -93,11 +93,11 @@ export default function ServiceList({
                     {category.services.map((service, serviceIndex) => (
                       <div
                         key={service.id}
-                        className="py-3 flex items-center justify-between gap-4"
+                        className="py-3 flex items-start justify-between gap-4"
                       >
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium truncate">{service.name}</span>
+                        <div className="flex-1 min-w-0 overflow-hidden">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-medium">{service.name}</span>
                             {service.isSubcontracted && (
                               <span className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full shrink-0">
                                 Subcontracted
@@ -109,10 +109,10 @@ export default function ServiceList({
                               </span>
                             )}
                           </div>
-                          <p className="text-sm text-muted-foreground truncate">
+                          <p className="text-sm text-muted-foreground line-clamp-2">
                             {service.description}
                           </p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-muted-foreground truncate">
                             /{service.slug}
                           </p>
                         </div>

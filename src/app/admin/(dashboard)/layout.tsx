@@ -18,9 +18,9 @@ export default async function AdminDashboardLayout({
   return (
     <div className="min-h-screen flex bg-gray-100">
       <AdminSidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <AdminHeader username={admin.username} />
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-6 overflow-auto">{children}</main>
       </div>
       <Toaster />
     </div>
