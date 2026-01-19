@@ -20,7 +20,7 @@ export default function CategoryCard({ category, className }: CategoryCardProps)
     <Link href={`/services?category=${category.slug}`}>
       <Card
         className={cn(
-          "h-full transition-all hover:shadow-md hover:border-primary/50",
+          "h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-l-4 border-l-transparent hover:border-l-accent",
           className
         )}
       >
