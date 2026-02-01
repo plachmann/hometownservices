@@ -1,0 +1,13 @@
+{
+  "planPath": "docs/plans/2026-02-01-remove-redis.md",
+  "tasks": [
+    {"id": 1, "subject": "Task 1: Remove rate limiting from login route", "status": "pending"},
+    {"id": 2, "subject": "Task 2: Remove rate limiting from inquiries route", "status": "pending"},
+    {"id": 3, "subject": "Task 3: Delete rate limiting module", "status": "pending", "blockedBy": [1, 2]},
+    {"id": 4, "subject": "Task 4: Remove npm dependencies", "status": "pending", "blockedBy": [3]},
+    {"id": 5, "subject": "Task 5: Update environment configuration", "status": "pending"},
+    {"id": 6, "subject": "Task 6: Update README documentation", "status": "pending"},
+    {"id": 7, "subject": "Task 7: Final verification", "status": "pending", "blockedBy": [4, 5, 6]}
+  ],
+  "lastUpdated": "2026-02-01T00:00:00Z"
+}

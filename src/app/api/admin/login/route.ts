@@ -12,19 +12,11 @@ import {
   serverErrorResponse,
 } from "@/lib/api-utils";
 import { ZodError } from "zod";
-import { loginRatelimit, getClientIp, checkRateLimit } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
-    // Rate limit by IP address
-    const ip = getClientIp(request);
-    const rateLimitResponse = await checkRateLimit(loginRatelimit, ip);
-    if (rateLimitResponse) {
-      return rateLimitResponse;
-    }
-
     const body = await request.json();
 
     // Validate input
